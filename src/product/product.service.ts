@@ -5,9 +5,9 @@ import { Repository } from 'typeorm';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 import { Product } from './entities/product.entity';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class ProductService {
@@ -15,12 +15,11 @@ export class ProductService {
   private readonly logger = new Logger('ProductService');
 
   constructor(
-    
+  
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>
-
-  ){}
   
+  ){}
   
   async create(createProductDto: CreateProductDto) {
     
@@ -35,14 +34,22 @@ export class ProductService {
      this.handleDbExeptions( error );
     
     }
-
   }
 
-  async findAll() {
+  async findAll( paginationDto : PaginationDto) {
     
-    const product = await this.productRepository.find({})
-    return product;
+    const { limit= 10, offset= 0 } = paginationDto
 
+    const product = await this.productRepository.find({
+      
+      take: limit,
+      skip: offset,
+      
+      // TODO Relaciones
+    })
+
+    return product;
+  
   }
 
   async findOne(id: string) {
@@ -53,7 +60,7 @@ export class ProductService {
       throw new NotFoundException(`Product with id ${id} not found`);
 
     return product;
-
+  
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
