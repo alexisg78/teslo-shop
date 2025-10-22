@@ -9,7 +9,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 import { Product } from './entities/product.entity';
-import { title } from 'process';
 
 @Injectable()
 export class ProductService {
@@ -79,8 +78,27 @@ export class ProductService {
   
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    
+    const product = await this.productRepository.preload({
+      id: id,
+      ...updateProductDto
+    });
+    
+    if ( !product ) throw new NotFoundException(`Product whit id: ${id} not found`)
+    
+    try {  
+      
+      await this.productRepository.save( product )
+      return product;
+
+    } catch (error) {
+      
+      this.handleDbExeptions( error );
+      
+    }
+
+
   }
 
   async remove(id: string ) {
