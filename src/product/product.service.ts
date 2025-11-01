@@ -10,6 +10,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-Image.entity';
+import { url } from 'inspector';
 
 @Injectable()
 export class ProductService {
@@ -52,15 +53,21 @@ export class ProductService {
     
     const { limit= 10, offset= 0 } = paginationDto
 
-    const product = await this.productRepository.find({
+    const products = await this.productRepository.find({
       
       take: limit,
       skip: offset,
-      
-      // TODO Relaciones
+      relations: {
+        images: true
+      }
+
+
     })
 
-    return product;
+    return products.map( ( product ) => ({
+      ...product,
+      images: product.images?.map( img => img.url )
+    }))
   
   }
 
@@ -73,20 +80,34 @@ export class ProductService {
       product = await this.productRepository.findOneBy({ id: term });
     }else{
       
-      const queryBuilder= this.productRepository.createQueryBuilder()
+      const queryBuilder= this.productRepository.createQueryBuilder('prod')
 
       product = await queryBuilder
         .where(`lower(title) =:title or slug =:slug`, {
           title: term.toLowerCase(),
           slug: term.toLowerCase()
-        }).getOne()
+        })
+        .leftJoinAndSelect('prod.images', 'prodImages')
+        .getOne()
+
     }
 
     if ( !product )
       throw new NotFoundException(`Product with ${term} not found`);
 
-    return product;
+    return product
   
+  }
+
+  async findOnePlain( term: string ) {
+
+    const { images= [], ...restProd } = await this.findOne( term );
+
+    return {
+      ...restProd,
+      images: images.map( img => img.url )
+    }
+
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
