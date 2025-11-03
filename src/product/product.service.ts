@@ -153,7 +153,7 @@ export class ProductService {
       this.handleDbExeptions( error );
 
     }
-    
+
   }
 
   async remove(id: string ) {
@@ -168,8 +168,22 @@ export class ProductService {
       throw new BadRequestException(error.detail);
     
     this.logger.error(error.message);
-    throw new InternalServerErrorException('Unexpected error, check server logs')
+    throw new InternalServerErrorException('Unexpected error, check server logs');
 
+  }
+
+  async deletAllProducts() {
+    const query = await this.productRepository.createQueryBuilder('product');
+
+    try {
+      return await query
+        .delete()
+        .where({})
+        .execute()
+
+    } catch (error) {
+      this.handleDbExeptions(error);
+    }
   }
 
 }
