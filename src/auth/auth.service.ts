@@ -7,7 +7,7 @@ import * as bcrypt  from 'bcrypt'
 
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto.js';
+import { LoginUserDto } from './dto/login-user.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 
@@ -38,7 +38,7 @@ export class AuthService {
 
       return {
         ...restUser,
-        token: this.getJwt({ email: restUser.email })
+        token: this.getJwt({ id: restUser.id })
       }
 
     } catch (error) {
@@ -53,7 +53,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true }
+      select: { email: true, password: true, id: true }
     });
 
     if ( !user )
@@ -64,7 +64,7 @@ export class AuthService {
 
     return {
       ...user,
-      token: this.getJwt({ email: user.email })
+      token: this.getJwt({ id: user.id })
     }
     
   }
