@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Headers } from '@nestjs/common';
+import { IncomingHttpHeaders } from 'http';
+import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
@@ -9,7 +10,7 @@ import { GetUser, GetRawHeaders } from './decorators'
 // import { GetRawHeaders } from './decorators/get-rawHeaders.decorator'; // En teoria deberia ir en los common porque es mas generico
 
 import { User } from './entities/user.entity';
-import { IncomingHttpHeaders } from 'http';
+import { UserRoleGuard } from './guards/user-role.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -43,6 +44,19 @@ export class AuthController {
       userEmail,
       headers
       // rawHeaders
+    }
+  }
+
+  @Get('private2')
+  @SetMetadata('roles', ['admin', 'super-user'])
+  @UseGuards( AuthGuard(), UserRoleGuard )
+  privateRoute2(
+    @GetUser() user: User
+  ){
+
+    return {
+      ok: true,
+      user
     }
   }
 
