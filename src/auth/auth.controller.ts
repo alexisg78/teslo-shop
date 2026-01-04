@@ -10,7 +10,10 @@ import { GetUser, GetRawHeaders } from './decorators'
 // import { GetRawHeaders } from './decorators/get-rawHeaders.decorator'; // En teoria deberia ir en los common porque es mas generico
 
 import { User } from './entities/user.entity';
+
 import { UserRoleGuard } from './guards/user-role.guard';
+import { RoleProtected } from './decorators/role-protected.decorator';
+import { ValidRoles } from './interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -47,8 +50,21 @@ export class AuthController {
     }
   }
 
+  // @Get('private2')
+  // @SetMetadata('roles', ['admin', 'super-user'])     // Esta linea se puede mejorar para no cometer errores al pasar los argumentos de la metadata
+  // @UseGuards( AuthGuard(), UserRoleGuard )
+  // privateRoute2(
+  //   @GetUser() user: User
+  // ){
+
+  //   return {
+  //     ok: true,
+  //     user
+  //   }
+  // }
+
   @Get('private2')
-  @SetMetadata('roles', ['admin', 'super-user'])
+  @RoleProtected( ValidRoles.superUser )
   @UseGuards( AuthGuard(), UserRoleGuard )
   privateRoute2(
     @GetUser() user: User
