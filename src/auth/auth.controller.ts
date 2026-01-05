@@ -5,14 +5,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 
-import { GetUser, GetRawHeaders } from './decorators'
+import { GetUser, RoleProtected, Auth, GetRawHeaders } from './decorators'
 // import { GetUser } from './decorators/get-user.decorator';
 // import { GetRawHeaders } from './decorators/get-rawHeaders.decorator'; // En teoria deberia ir en los common porque es mas generico
 
 import { User } from './entities/user.entity';
 
 import { UserRoleGuard } from './guards/user-role.guard';
-import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces';
 
 @Controller('auth')
@@ -63,6 +62,8 @@ export class AuthController {
   //   }
   // }
 
+  
+  // Custom Decorator - RoleProtected
   @Get('private2')
   @RoleProtected( ValidRoles.superUser )
   @UseGuards( AuthGuard(), UserRoleGuard )
@@ -75,5 +76,18 @@ export class AuthController {
       user
     }
   }
+
+
+  @Get('private3')
+  @Auth( ValidRoles.admin, ValidRoles.superUser )
+  privateRoute3(
+    @GetUser() user: User
+  ){
+    
+    return {
+      ok: true,
+      user
+    }
+  }  
 
 }

@@ -6,5 +6,5 @@ export const META_ROLES = 'roles'
 export const RoleProtected = (...args: ValidRoles[]) => {
 
   
-  return SetMetadata('roles', args);
+  return SetMetadata(META_ROLES, args);
 }
