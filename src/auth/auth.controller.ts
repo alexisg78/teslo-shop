@@ -1,6 +1,7 @@
 import { IncomingHttpHeaders } from 'http';
 import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
@@ -14,6 +15,7 @@ import { User } from './entities/user.entity';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -57,18 +59,20 @@ export class AuthController {
     }
   }
 
-  // @Get('private2')
-  // @SetMetadata('roles', ['admin', 'super-user'])     // Esta linea se puede mejorar para no cometer errores al pasar los argumentos de la metadata
-  // @UseGuards( AuthGuard(), UserRoleGuard )
-  // privateRoute2(
-  //   @GetUser() user: User
-  // ){
+  // test de diferentes formas de usar guards y decoradores personalizados: setmetadata, roleprotected etc
 
-  //   return {
-  //     ok: true,
-  //     user
-  //   }
-  // }
+  @Get('private1')
+  @SetMetadata('roles', ['admin', 'super-user'])     // Esta linea se puede mejorar para no cometer errores al pasar los argumentos de la metadata
+  @UseGuards( AuthGuard(), UserRoleGuard )
+  privateRoute1(
+    @GetUser() user: User
+  ){
+
+    return {
+      ok: true,
+      user
+    }
+  }
 
   
   // Custom Decorator - RoleProtected
@@ -85,6 +89,7 @@ export class AuthController {
     }
   }
 
+  // FORMA EFICIENTE de utilizar la validacion con un decorador personalizado @Auth
 
   @Get('private3')
   @Auth( ValidRoles.admin, ValidRoles.superUser )
