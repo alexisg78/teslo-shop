@@ -27,8 +27,26 @@ export class MessagesWsGateway implements OnGatewayConnection, OnGatewayDisconne
   }
 
   @SubscribeMessage('message-from-client')
-    handleMessageFromClient( client: Socket, payload: NewMessageDto ){
-    console.log(client.id, payload)
+  handleMessageFromClient( client: Socket, payload: NewMessageDto ){
+    
+    // Emite unicamente al cliente
+    // client.emit('message-from-server', {
+    //   fullName: 'Soy yo!!!',
+    //   message: payload.message || 'No message!!!'
+    // })
+    
+    // Emitir a TODOS, MENOS al cliente inicial
+    // client.broadcast.emit('message-from-server', {
+    //   fullName: 'Anonimo!',
+    //   message: payload.message || 'No message!!!'
+    // })
+
+    // Emitir a TODOS
+    this.wss.emit('message-from-server', {
+      fullName: 'Anonimo!',
+      message: payload.message || 'No message!!!'
+    })
+
   }
 
   
